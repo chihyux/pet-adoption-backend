@@ -1,9 +1,10 @@
+
 const Koa = require('koa')
 const cors = require('@koa/cors')
 const axios = require('axios')
 const router = require('koa-router')()
 const http = require('https')
-
+const dotenv = require("dotenv").config();
 const app = new Koa()
 app.use(cors())
 
@@ -25,7 +26,11 @@ async function baseInstance(params, ctx, next) {
   }
 }
 
-router.get('/:param', async (ctx, next) => {
+router.get('/', async (ctx, next) => {
+  ctx.body = 'conneting'
+})
+
+router.get('/info/:param', async (ctx, next) => {
   return await baseInstance(ctx.params.param, ctx, next)
 })
 
@@ -34,10 +39,9 @@ router.get('/search/:param', async (ctx, next) => {
 })
 
 app.use(router.routes())
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT || 3000
 
-const server = http.creatServer(app.callback())
-
-server.listen(PORT, () => {
-  console.log(`env: ${process.env.PORT} listening ${PORT}`)
+http.createServer(app.callback()).listen(PORT, () => {
+  console.log(`env: ${process.env.PORT}`)
+  console.log(`Server is listening on port ${PORT}`);
 })
