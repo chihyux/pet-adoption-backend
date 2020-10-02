@@ -1,15 +1,14 @@
 
-const Koa = require('koa')
-const cors = require('@koa/cors')
-const axios = require('axios')
-const router = require('koa-router')()
-const http = require('https')
-const dotenv = require("dotenv").config();
-const app = new Koa()
-app.use(cors())
+const Koa = require('koa');
+const cors = require('@koa/cors');
+const axios = require('axios');
+const router = require('koa-router')();
+const http = require('https');
+const app = new Koa();
+const bodyParser = require('body-parser');
 
 const baseURL =
-  'https://data.coa.gov.tw/Service/OpenData/TransService.aspx?UnitId=QcbUEzN6E6DL&animal_status=OPEN'
+  'https://data.coa.gov.tw/Service/OpenData/TransService.aspx?UnitId=QcbUEzN6E6DL&animal_status=OPEN';
 
 async function baseInstance(params, ctx, next) {
   console.log('params', params)
@@ -24,24 +23,28 @@ async function baseInstance(params, ctx, next) {
     err.status = err.statusCode || err.status || 500
     throw err
   }
-}
+};
 
 router.get('/', async (ctx, next) => {
   ctx.body = 'conneting'
-})
+});
 
 router.get('/info/:param', async (ctx, next) => {
   return await baseInstance(ctx.params.param, ctx, next)
-})
+});
 
 router.get('/search/:param', async (ctx, next) => {
   return await baseInstance(ctx.params.param, ctx, next)
-})
+});
 
-app.use(router.routes())
-const PORT = process.env.PORT || 3000
+app.use(router.routes());
+app.use(bodyParser.text())
+app.use(bodyParser.json());
+app.use(cors());
 
-http.createServer(app.callback()).listen(PORT, () => {
-  console.log(`env: ${process.env.PORT}`)
-  console.log(`Server is listening on port ${PORT}`);
-})
+const PORT = process.env.PORT || 3001;
+app.listen(PORT)
+// http.createServer(app.callback()).listen(PORT, () => {
+//   console.log(`env: ${process.env.PORT}`)
+//   console.log(`Server is listening on port ${PORT}`);
+// })
