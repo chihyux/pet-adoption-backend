@@ -5,20 +5,25 @@ const axios = require('axios');
 const router = require('koa-router')();
 const http = require('https');
 const app = new Koa();
-const bodyParser = require('body-parser');
+const bodyParser = require('body-parser')
+const querystring = require('querystring');
+const url = require('url');
 
 const baseURL =
-  'https://data.coa.gov.tw/Service/OpenData/TransService.aspx?UnitId=QcbUEzN6E6DL&animal_status=OPEN';
+  'https://data.coa.gov.tw/Service/OpenData/TransService.aspx';
 
-async function baseInstance(params, ctx, next) {
-  console.log('params', params)
+const AcceptedUrl =
+  process.env.NODE_ENV === "production"
+    ? ""
+    : "http://localhost:3000";
+
+app.use(cors({ origin: AcceptedUrl }));
+
+async function instance(currentURL, query, ctx, next) {
+  console.log(query)
   try {
-    const { data } = await axios.get(baseURL + `${encodeURI(params)}`)
-    if (data) {
-      ctx.body = data
-      return (ctx.status = 200)
-    }
-    return (ctx.status = 404)
+    const result = await axios.get(`${currentURL}?${query}`)
+    ctx.body = result.data
   } catch (err) {
     err.status = err.statusCode || err.status || 500
     throw err
@@ -26,21 +31,23 @@ async function baseInstance(params, ctx, next) {
 };
 
 router.get('/', async (ctx, next) => {
-  ctx.body = 'conneting'
+ ctx.body = 'connecting'
 });
 
-router.get('/info/:param', async (ctx, next) => {
-  return await baseInstance(ctx.params.param, ctx, next)
+router.get('/info', async (ctx, next) => {
+  return await instance(baseURL, ctx.request.querystring, ctx, next)
 });
 
-router.get('/search/:param', async (ctx, next) => {
-  return await baseInstance(ctx.params.param, ctx, next)
+router.get('/search', async (ctx, next) => {
+  return await instance(baseURL, ctx.request.querystring, ctx, next)
+});
+
+router.get('/resource', async (ctx, next) => {
+  return await instance(baseURL, ctx.request.querystring, ctx, next)
 });
 
 app.use(router.routes());
-app.use(bodyParser.text())
-app.use(bodyParser.json());
-app.use(cors());
+app.use(bodyParser());
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT)
