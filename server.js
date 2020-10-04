@@ -14,7 +14,7 @@ const baseURL =
 
 const AcceptedUrl =
   process.env.NODE_ENV === "production"
-    ? ""
+    ? "https://jolly-shockley-e9aec7.netlify.app"
     : "http://localhost:3000";
 
 app.use(cors({ origin: AcceptedUrl }));
