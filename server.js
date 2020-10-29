@@ -3,11 +3,10 @@ const Koa = require('koa');
 const cors = require('@koa/cors');
 const axios = require('axios');
 const router = require('koa-router')();
-const http = require('https');
 const app = new Koa();
 const bodyParser = require('body-parser')
 const querystring = require('querystring');
-const url = require('url');
+
 
 const baseURL =
   'https://data.coa.gov.tw/Service/OpenData/TransService.aspx';
@@ -20,7 +19,6 @@ const AcceptedUrl =
 app.use(cors({ origin: AcceptedUrl }));
 
 async function instance(currentURL, query, ctx, next) {
-  console.log(query)
   try {
     const result = await axios.get(`${currentURL}?${query}`)
     ctx.body = result.data
@@ -51,7 +49,3 @@ app.use(bodyParser());
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT)
-// http.createServer(app.callback()).listen(PORT, () => {
-//   console.log(`env: ${process.env.PORT}`)
-//   console.log(`Server is listening on port ${PORT}`);
-// })
